@@ -105,42 +105,22 @@ void SimpleParser::parseNextBlockItem(model::BlockNode& block, model::FunctionNo
     }
 
     if (match(model::TokenType::keyword_for)) {
-        block.loops.push_back(parseLoop(owner));
-
-        model::StatementNode statement;
-        statement.kind = model::StatementKind::loop;
-        statement.childIndex = block.loops.size() - 1;
-        block.statements.push_back(std::move(statement));
+        block.statements.push_back(model::StatementNode::makeLoop(parseLoop(owner)));
         return;
     }
 
     if (match(model::TokenType::keyword_if)) {
-        block.branches.push_back(parseIf(owner));
-
-        model::StatementNode statement;
-        statement.kind = model::StatementKind::branch;
-        statement.childIndex = block.branches.size() - 1;
-        block.statements.push_back(std::move(statement));
+        block.statements.push_back(model::StatementNode::makeBranch(parseIf(owner)));
         return;
     }
 
     if (match(model::TokenType::keyword_switch)) {
-        block.branches.push_back(parseSwitch(owner));
-
-        model::StatementNode statement;
-        statement.kind = model::StatementKind::branch;
-        statement.childIndex = block.branches.size() - 1;
-        block.statements.push_back(std::move(statement));
+        block.statements.push_back(model::StatementNode::makeBranch(parseSwitch(owner)));
         return;
     }
 
     if (check(model::TokenType::left_brace)) {
-        block.blocks.push_back(parseBlock(owner));
-
-        model::StatementNode statement;
-        statement.kind = model::StatementKind::block;
-        statement.childIndex = block.blocks.size() - 1;
-        block.statements.push_back(std::move(statement));
+        block.statements.push_back(model::StatementNode::makeBlock(parseBlock(owner)));
         return;
     }
 
@@ -194,9 +174,7 @@ model::StatementNode SimpleParser::parseSimpleStatement() {
 
     consume(model::TokenType::semicolon, "Expected ';'.");
 
-    model::StatementNode statement;
-    statement.kind = model::StatementKind::simple;
-    return statement;
+    return model::StatementNode::makeSimple();
 }
 
 std::unique_ptr<model::LoopNode> SimpleParser::parseLoop(model::FunctionNode& owner) {
