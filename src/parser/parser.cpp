@@ -56,6 +56,15 @@ bool SimpleParser::isFunctionStart() const {
     return !isAtEnd(closingParen - current_ + 1) && (*tokens_)[closingParen + 1].type == model::TokenType::left_brace;
 }
 
+bool SimpleParser::isTypedFunctionStart() const {
+    if (!check(model::TokenType::identifier) || !check(model::TokenType::identifier, 1) || !check(model::TokenType::left_paren, 2)) {
+        return false;
+    }
+
+    const std::size_t closingParen = findClosingParen(current_ + 2);
+    return !isAtEnd(closingParen - current_ + 1) && (*tokens_)[closingParen + 1].type == model::TokenType::left_brace;
+}
+
 std::size_t SimpleParser::findClosingParen(std::size_t openIndex) const {
     std::size_t depth = 0;
 
@@ -99,6 +108,12 @@ void SimpleParser::skipParentheses() {
 }
 
 void SimpleParser::parseNextBlockItem(model::BlockNode& block, model::FunctionNode& owner) {
+    if (isTypedFunctionStart()) {
+        ++current_; // skip simple return type token, parse starts from function name
+        owner.nestedFunctions.push_back(parseFunction());
+        return;
+    }
+
     if (isFunctionStart()) {
         owner.nestedFunctions.push_back(parseFunction());
         return;

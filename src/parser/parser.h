@@ -24,6 +24,7 @@ private:
     [[nodiscard]] bool isAtEnd(std::size_t offset = 0) const;
     [[nodiscard]] bool check(model::TokenType type, std::size_t offset = 0) const;
     [[nodiscard]] bool isFunctionStart() const;
+    [[nodiscard]] bool isTypedFunctionStart() const;
     [[nodiscard]] std::size_t findClosingParen(std::size_t openIndex) const;
 
     void skipParentheses();
